@@ -3,49 +3,42 @@
 [![Build Status](https://travis-ci.com/zedr/clean-code-python.svg?branch=master)](https://travis-ci.com/zedr/clean-code-python)
 [![](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/download/releases/3.8.3/)
 
-## Table of Contents
-  1. [Introduction](#introduction)
-  2. [Variables](#variables)
-  3. [Functions](#functions)
-  5. [Classes](#classes)
-     1. [S: Single Responsibility Principle (SRP)](#single-responsibility-principle-srp)
-     2. [O: Open/Closed Principle (OCP)](#openclosed-principle-ocp)
-     3. [L: Liskov Substitution Principle (LSP)](#liskov-substitution-principle-lsp)
-     4. [I: Interface Segregation Principle (ISP)](#interface-segregation-principle-isp)
-     5. [D: Dependency Inversion Principle (DIP)](#dependency-inversion-principle-dip)
-  6. [Don't repeat yourself (DRY)](#dont-repeat-yourself-dry)
-  7. [Translation](#translation)
+## 目录
+  1. [介绍](#introduction)
+  2. [变量](#variables)
+  3. [函数](#functions)
+  5. [类](#classes)
+     1. [S: 单一功能原则（SRP：Single responsibility principle）](#s单一功能原则)
+     2. [O: 开闭原则（OCP：Open/Closed Principle）](#开闭原则)
+     3. [L: 里氏替换原则 （LSP：Liskov Substitution Principle）](#里氏替换原则)
+     4. [I: 接口隔离原则 （ISP：Interface Segregation Principle）](#接口隔离原则)
+     5. [D: 依赖倒置原则 （DIP：Dependency Inversion Principle (DIP)](#依赖倒置原则)
+  6. [项目里不要有重复代码 （DRY：Don't repeat yourself）](#项目里不要有重复代码 )
+  7. [其它语言版本](#其它语言版本)
 
-## Introduction
+## **介绍**
+软件工程需要遵守的一些原则。参考了 Robert C. Martin's 的
+[*代码整洁之道*](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882)，原书编程语言使用的是用 javascript，这里将它改写提炼成了 python 版本。核心思想是一样的。这并不是一个介绍 python 代码风格的手册。它的核心目的是帮助大家用 python 写出：可读性高，易用，易于重构的项目。
 
-Software engineering principles, from Robert C. Martin's book
-[*Clean Code*](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882),
-adapted for Python. This is not a style guide. It's a guide to producing
-readable, reusable, and refactorable software in Python.
+这里介绍的原则并不需要严格每一条都严格执行，也许有些人只会赞同里面的一部分。但是这些原则都是*代码整洁之道*作者多年经验的总结。
 
-Not every principle herein has to be strictly followed, and even fewer will be universally
-agreed upon. These are guidelines and nothing more, but they are ones codified over many
-years of collective experience by the authors of *Clean Code*.
+请注意里面的示例代码只能在 Python3.7 及以上的版本运行。
 
-Inspired from [clean-code-javascript](https://github.com/ryanmcdermott/clean-code-javascript)
+## **变量**
 
-Targets Python3.7+
+### 使用有意义，完整的单词作为变量名字。少用拼音，缩略语。
 
-## **Variables**
-### Use meaningful and pronounceable variable names
-
-**Bad:**
+**不好的例子:**
 
 ```python
 import datetime
 
-
-ymdstr = datetime.date.today().strftime("%y-%m-%d")
+shijian = datetime.date.today().strftime("%y-%m-%d") # 不要用拼音
+ymdstr = datetime.date.today().strftime("%y-%m-%d") # 不要用缩略语，除非这些缩率语大家一眼能认出来，也不需要变量里面加类型。
 ```
+另外，不需要再变量名字里面加类型（str）。
 
-Additionally, there's no need to add the type of the variable (str) to its name.
-
-**Good**:
+**改进：**:
 
 ```python
 import datetime
@@ -53,12 +46,14 @@ import datetime
 
 current_date: str = datetime.date.today().strftime("%y-%m-%d")
 ```
-**[⬆ back to top](#table-of-contents)**
 
+**[⬆ 回到顶部](#目录)**
+
+同一个项目中，表示同一个东西的时候请使用相同的变量名。
 ### Use the same vocabulary for the same type of variable
 
-**Bad:**
-Here we use three different names for the same underlying entity:
+**不好的例子:**
+这里我们用了三个不同的变量名（user，client，customer）表示了同一个东西：
 
 ```python
 def get_user_info(): pass
@@ -66,8 +61,8 @@ def get_client_data(): pass
 def get_customer_record(): pass
 ```
 
-**Good**:
-If the entity is the same, you should be consistent in referring to it in your functions:
+**改进1**:
+如果你想表示同一个的东西，在函数名及任何引用到它的地方，名字都需要一致。
 
 ```python
 def get_user_info(): pass
@@ -75,9 +70,8 @@ def get_user_data(): pass
 def get_user_record(): pass
 ```
 
-**Even better**
-Python is (also) an object oriented programming language. If it makes sense, package the functions together with the concrete implementation
-of the entity in your code, as instance attributes, property methods, or methods:
+**改进2**
+Python 是一个面向对象的编程语言。可以把上面的函数封装成一个类，然后这些函数的功能就可以用类属性，类 property 方法（使用@property 装饰器，可以像访问类属性一样访问这类方法），类方法来实现。从下面这个例子中我们可以发现，在给类方法起名字的时候，我们不需要在把类名放进去，get_user_record 简化成了 get_record。
 
 ```python
 from typing import Union, Dict
@@ -98,38 +92,36 @@ class User:
         return Record()
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-### Use searchable names
-We will read more code than we will ever write. It's important that the code we do write is
-readable and searchable. By *not* naming variables that end up being meaningful for
-understanding our program, we hurt our readers.
-Make your names searchable.
+### 使用便于搜索的命名方式
+我们在工作中，阅读别人的代码量会比自己写的代码量要多很多。为了方便他人阅读我们自己写的代码，我们需要保证我们的代码写的可读性高，检索起来方便。如果我们直接把一些变量写死，读者不明白它的具体含义，代码可读性就会很差。常见的就是魔鬼数字（magic number）。
 
-**Bad:**
+
+**不好的例子:**
 
 ```python
 import time
 
 
 # What is the number 86400 for again?
-time.sleep(86400)
+time.sleep(86400) #魔鬼数字
 ```
 
-**Good**:
+**改进**:
 
 ```python
 import time
 
 
-# Declare them in the global namespace for the module.
+# 将它变成常量，在模块的全局域声明.
 SECONDS_IN_A_DAY = 60 * 60 * 24
 time.sleep(SECONDS_IN_A_DAY)
 ```
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-### Use explanatory variables
-**Bad:**
+### 变量名要有意义
+**不好的例子:**
 
 ```python
 import re
@@ -143,8 +135,9 @@ if matches:
     print(f"{matches[1]}: {matches[2]}")
 ```
 
-**Not bad**:
+**改进1**:
 
+这个比上面那个例子好一些，但是仍然强依赖正则表达式
 It's better, but we are still heavily dependent on regex.
 
 ```python
@@ -160,9 +153,9 @@ if matches:
     print(f"{city}: {zip_code}")
 ```
 
-**Good**:
+**改进2**:
 
-Decrease dependence on regex by naming subpatterns.
+对正则表达式做一些改进，给匹配的部分起个别名。
 
 ```python
 import re
@@ -175,13 +168,14 @@ matches = re.match(city_zip_code_regex, address)
 if matches:
     print(f"{matches['city']}, {matches['zip_code']}")
 ```
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
 ### Avoid Mental Mapping
+不要让阅读你代码的人猜变量名表示的含义，直接显式的在变量名中表示它想表达的东西。
 Don’t force the reader of your code to translate what the variable means.
 Explicit is better than implicit.
 
-**Bad:**
+**不好的例子:**
 
 ```python
 seq = ("Austin", "New York", "San Francisco")
@@ -194,7 +188,7 @@ for item in seq:
     print(item)
 ```
 
-**Good**:
+**改进**:
 
 ```python
 locations = ("Austin", "New York", "San Francisco")
@@ -205,15 +199,14 @@ for location in locations:
     # ...
     print(location)
 ```
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
 
-### Don't add unneeded context
+### 不要在变量名中加一些不必要冗余的东西
 
-If your class/object name tells you something, don't repeat that in your
-variable name.
+如果你的类/对象已经告诉读者一些信息，这些信息就不需要在类属性名或者方法名里面出现了。
 
-**Bad:**
+**不好的例子:**
 
 ```python
 class Car:
@@ -222,7 +215,7 @@ class Car:
     car_color: str
 ```
 
-**Good**:
+**改进**:
 
 ```python
 class Car:
@@ -231,11 +224,11 @@ class Car:
     color: str
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-### Use default arguments instead of short circuiting or conditionals
+### 必要的话给参数赋一个默认值，同时也可以显示的说明参数的类型。
 
-**Tricky**
+**不好的例子**
 
 Why write:
 
@@ -249,10 +242,7 @@ def create_micro_brewery(name):
     # etc.
 ```
 
-... when you can specify a default argument instead? This also makes it clear that
-you are expecting a string as the argument.
-
-**Good**:
+**改进1**:
 
 ```python
 import hashlib
@@ -263,26 +253,21 @@ def create_micro_brewery(name: str = "Hipster Brew Co."):
     # etc.
 ```
 
-**[⬆ back to top](#table-of-contents)**
-## **Functions**
-### Function arguments (2 or fewer ideally)
-Limiting the amount of function parameters is incredibly important because it makes
-testing your function easier. Having more than three leads to a combinatorial explosion
-where you have to test tons of different cases with each separate argument.
+**[⬆ 回到顶部](#目录)**
+## **函数**
+### 函数的参数 (参数个数小于等于两个)
+对函数的参数个数做限制是非常重要的，因为它可以使你的函数测试起来更简单。如果函数的参数个数超过三个，那么测试用例将会成几何数增加。
 
-Zero arguments is the ideal case. One or two arguments is ok, and three should be avoided.
-Anything more than that should be consolidated. Usually, if you have more than two
-arguments then your function is trying to do too much. In cases where it's not, most
-of the time a higher-level object will suffice as an argument.
+一个参数都没有的函数是最理想的。一个或者两个参数也是可以接受的。三个及三个以上要尽量避免。如果参数过多，有可能是这个函数的功能太复杂，要做的事情太多。如果不是这种情况，大多数情况可以把这些参数用一个类对象来封装起来，然后再作为函数的参数。
 
-**Bad:**
+**不好的例子:**
 
 ```python
 def create_menu(title, body, button_text, cancellable):
     pass
 ```
 
-**Java-esque**:
+**Java-esque 表示法**:
 
 ```python
 class Menu:
@@ -301,7 +286,7 @@ menu = Menu(
 )
 ```
 
-**Also good**
+**改进版1**
 
 ```python
 class MenuConfig:
@@ -335,7 +320,7 @@ config.cancellable = True
 create_menu(config)
 ```
 
-**Fancy**
+**改进版2**
 
 ```python
 from typing import NamedTuple
@@ -370,7 +355,7 @@ create_menu(
 )
 ```
 
-**Even fancier**
+**改进版3**
 
 ```python
 from dataclasses import astuple, dataclass
@@ -405,7 +390,7 @@ create_menu(
 )
 ```
 
-**Even fancier, Python3.8+ only**
+**改进版4, Python3.8以上**
 
 ```python
 from typing import TypedDict
@@ -441,16 +426,12 @@ create_menu(
     )
 )
 ```
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-### Functions should do one thing
-This is by far the most important rule in software engineering. When functions do more
-than one thing, they are harder to compose, test, and reason about. When you can isolate
-a function to just one action, they can be refactored easily and your code will read much
-cleaner. If you take nothing else away from this guide other than this, you'll be ahead
-of many developers.
+### 一个函数只需要负责一件事情
+在软件工程中，这是一件非常重要的事。如果函数做的事情过多，把各种事情串起来就会很麻烦，读者很难直观的理解这个函数的功能，测试也会很复杂。如果你可以保证你写的函数只负责一件事情或者一个功能，那么你的代码重构起来就会很简单，而且别人读起来也会比较轻松。如果你阅读完这篇内容，只记住了这个要求，你就已经比很多其他的程序员要厉害了。
 
-**Bad:**
+**不好的例子:**
 
 ```python
 from typing import List
@@ -472,7 +453,7 @@ def email_clients(clients: List[Client]) -> None:
             email(client)
 ```
 
-**Good**:
+**改进1**:
 
 ```python
 from typing import List
@@ -499,9 +480,9 @@ def email_clients(clients: List[Client]) -> None:
         email(client)
 ```
 
-Do you see an opportunity for using generators now?
+有没有发现上面这个例子里面可以使用生成器。
 
-**Even better**
+**改进2**
 
 ```python
 from typing import Generator, Iterator
@@ -528,11 +509,11 @@ def email_client(clients: Iterator[Client]) -> None:
 ```
 
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-### Function names should say what they do
+### 函数的名字需要表达它的功能
 
-**Bad:**
+**坏的例子:**
 
 ```python
 class Email:
@@ -540,11 +521,11 @@ class Email:
         pass
 
 message = Email()
-# What is this supposed to do again?
+# handle 到底是干啥用的?
 message.handle()
 ```
 
-**Good:**
+**改进**
 
 ```python
 class Email:
@@ -555,14 +536,12 @@ message = Email()
 message.send()
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-### Functions should only be one level of abstraction
+### 函数应该只有一层抽象（abstraction）
+如果你的函数有不止一层抽象，你的函数就太复杂了。把函数拆一下提高它的可复用性，并让它更容易测试。译者注：abstraction 这个翻译的不太好，这里想表达的含义是函数要简单，如果该函数实现的一个功能依赖另一个功能。那把依赖的那个功能也写一个函数。不要层层嵌套写到一起。可以体会一下下面的例子（需要有一些编译原理基础）。
 
-When you have more than one level of abstraction, your function is usually doing too
-much. Splitting up functions leads to reusability and easier testing.
-
-**Bad:**
+**不好的例子:**
 
 ```python
 # type: ignore
@@ -586,7 +565,7 @@ def parse_better_js_alternative(code: str) -> None:
         pass
 ```
 
-**Good:**
+**改进1**
 
 ```python
 from typing import Tuple, List, Dict
@@ -623,15 +602,14 @@ def parse(tokens: List) -> List:
     return syntax_tree
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-### Don't use flags as function parameters
+### 函数的参数里面不要出现 True/False 标志位
 
-Flags tell your user that this function does more than one thing. Functions
-should do one thing. Split your functions if they are following different code
-paths based on a boolean.
+如果函数的参数里面出现了标志位，那就说明函数需要实现不止一个功能。需要把函数根据标志位拆分一下。
 
-**Bad:**
+
+**不好的例子:**
 
 ```python
 from tempfile import gettempdir
@@ -645,7 +623,7 @@ def create_file(name: str, temp: bool) -> None:
         Path(name).touch()
 ```
 
-**Good:**
+**改进**
 
 ```python
 from tempfile import gettempdir
@@ -660,54 +638,42 @@ def create_temp_file(name: str) -> None:
     (Path(gettempdir()) / name).touch()
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-### Avoid side effects
+### 函数要避免副作用（side effect）
 
-A function produces a side effect if it does anything other than take a value in
-and return another value or values. For example, a side effect could be writing
-to a file, modifying some global variable, or accidentally wiring all your money
-to a stranger.
+这里的副作用不是贬义词。一个函数的功能一般是接受参数，返回一些值。如果它在做这些事情的同时还做了其它的事情，这些其它的事情就是副作用（side effect）。这些副作用可以是写一个文件，改全局变量，也有可能一不小心把你账户里的钱划入某个陌生的账户。
 
-Now, you do need to have side effects in a program on occasion - for example, like
-in the previous example, you might need to write to a file. In these cases, you
-should centralize and indicate where you are incorporating side effects. Don't have
-several functions and classes that write to a particular file - rather, have one
-(and only one) service that does it.
+如果你确实需要做这些事情，比如说在上个例子中，你需要写入一个文件。在这些情况下，你需要标记你引进入副作用的地方。不要让不同的函数和类同时操作相同的文件，直接通过某个特定函数来专门操作这个文件。
 
-The main point is to avoid common pitfalls like sharing state between objects
-without any structure, using mutable data types that can be written to by anything,
-or using an instance of a class, and not centralizing where your side effects occur.
-If you can do this, you will be happier than the vast majority of other programmers.
+需要避免一些常见的陷阱：在不同对象之间共享状态；使用可变数据类型（列表，字典等），导致任何函数或变量可以操作这些数据；使用某个类实例，但是不将产生副作用的地方集中。
+如果你能做到这点，你会比大多数其他程序员更轻松。
 
-**Bad:**
+**不好的例子:**
 
 ```python
 # type: ignore
 
-# This is a module-level name.
-# It's good practice to define these as immutable values, such as a string.
-# However...
+# fullname 是这个模块里的全局变量，是 string 类型.
 fullname = "Ryan McDermott"
 
 def split_into_first_and_last_name() -> None:
-    # The use of the global keyword here is changing the meaning of the
-    # the following line. This function is now mutating the module-level
-    # state and introducing a side-effect!
+    # fullname 是定义在这个模块里的全局变量，下面这行代码会改变这个全局变量的状态
+    # 并产生一个副作用。
+
     global fullname
     fullname = fullname.split()
 
 split_into_first_and_last_name()
 
-# MyPy will spot the problem, complaining about 'Incompatible types in
-# assignment: (expression has type "List[str]", variable has type "str")'
+# 调用完这个函数后fullname的类型就变了 由string 变成了 List[str]。再调用这个函数就会报错
+# 'Incompatible types in assignment: 
+# (expression has type "List[str]", variable has type "str")'
 print(fullname)  # ["Ryan", "McDermott"]
 
-# OK. It worked the first time, but what will happen if we call the
-# function again?
 ```
 
-**Good:**
+**改进1**
 
 ```python
 from typing import List, AnyStr
@@ -722,7 +688,7 @@ name, surname = split_into_first_and_last_name(fullname)
 print(name, surname)  # => Ryan McDermott
 ```
 
-**Also good**
+**改进2**
 
 ```python
 from dataclasses import dataclass
@@ -737,29 +703,28 @@ class Person:
         return self.name.split()
 
 
-# The reason why we create instances of classes is to manage state!
+# 这个类的目的就是统一控制状态!
 person = Person("Ryan McDermott")
 print(person.name)  # => "Ryan McDermott"
 print(person.name_as_first_and_last)  # => ["Ryan", "McDermott"]
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-## **Classes**
+## **类**
 
-### **Single Responsibility Principle (SRP)**
+### **单一功能原则**
 
 Robert C. Martin writes:
 
-> A class should have only one reason to change.
+> 就一个类而言，应该仅有一个引起它变化的原因.
 
-"Reasons to change" are, in essence, the responsibilities managed by a class or
-function.
+“变化的原因” 对应着类或者函数负责的功能。所以上面这句话换个说法就是一个类只负责一个功能。
+下面这个例子中，我们创建了一个 HTML 元素，这个元素是 HTML 里一个注释，注释里写入pip的版本号。
 
-In the following example, we create an HTML element that represents a comment with
-the version of the document:
 
-**Bad**
+**不好的例子：**
+
 ```python
 from importlib import metadata
 
@@ -778,16 +743,16 @@ class VersionCommentElement:
 
 VersionCommentElement().render()
 ```
-This class has two responsibilities:
 
- - Retrieve the version number of the Python package
- - Render itself as an HTML element
+这里的类有两个功能:
 
-Any change to one or the other carries the risk of impacting the other.
+ - 获得 pip 的版本号。
+ - 生成HTML的注释元素
 
-We can rewrite the class and decouple these responsibilities: 
+这里面任意一个功能的改变都会影响另一个。我们可以把这两个功能拆一下。
 
-**Good**
+**改进**
+
 ```python
 from importlib import metadata
 
@@ -811,36 +776,21 @@ class VersionCommentElement:
 VersionCommentElement(get_version("pip")).render()
 ```
 
-The result is that the class only needs to take care of rendering itself. It
-receives the version text during instantiation and this text is generated by
-calling a separate function, `get_version()`. Changing the class has no
-impact on the other, and vice-versa, as long as the contract between them does
-not change, i.e. the function provides a string and the class `__init__` method
-accepts a string.
+这样写的话，这个类只需要关注生成HTML元素。在实例化的时候，版本号作为初始化参数传了进去（版本号通过 `get_version()` 获得）。类和函数都是隔离的，任何一个发生改变都不会对另一个产生影响。
 
-As an added bonus, the `get_version()` is now reusable elsewhere.
+另外，`get_version()`  是可以被重用的。
 
-### **Open/Closed Principle (OCP)**
+### **开闭原则**
 
-> “Incorporate new features  by extending the system, not by making
-> modifications (to it)”,
+> “加入新的特性应该通过扩展的方式而不是修改的方式。
 > Uncle Bob.
 
-Objects should be open for extension, but closed to modification. It should be
-possible to augment the functionality provided by an object (for example, a class)
-without changing its internal contracts. An object can enable this when it
-is designed to be extended cleanly.
+软件中的对象（类，模块，函数等等）应该对于扩展是开放的，但是对于修改是封闭的。一个对象（比如说一个类）需要保证在不修改内部逻辑的情况下，增加一些新的功能（通过增加代码实现而不是修改原有的代码）。对象在设计之初就要保证它的扩展性。在下面这个例子中，我们会实现一个简单的web框架来处理 HTTP 请求作出响应（返回一些内容）。当 HTTP 服务器收到一个 GET 请求的时候，`View` 类`.get()`方法会被调用。
 
-In the following example, we try to implement a simple web framework that
-handles HTTP requests and returns responses. The `View` class has a single
-method `.get()` that will be called when the HTTP server will receive a GET
-request from a client.
+`View` 只会简单的返回`text/plain`。我们希望返回 HTML 内容。所以我们就继承 `View` 类，写了一个`TemplateView` 类。
 
-`View` is intentionally simple and returns `text/plain` responses. We would
-also like to return HTML responses based on a template file, so we subclass it
-using the `TemplateView` class.
+**不好的例子：**
 
-**Bad**
 ```python
 from dataclasses import dataclass
 
@@ -880,17 +830,12 @@ class TemplateView(View):
 
 ```
 
-The `TemplateView` class has modified the internal behaviour of its parent
-class in order to enable the more advanced functionality. In doing so,
-it now relies on the `View` to not change the implementation of the `.get()`
-method, which now needs to be frozen in time. We cannot introduce, for example,
-some additional checks in all our `View`-derived classes because the behaviour
-is overridden in at least one subtype and we will need to update it.
+为了实现新的功能， `TemplateView`  类把父类的内容改了，重新写了一个 `.get()` 方法。如果父类的 `.get()`不改变还好，如果改变了，比如说加一些额外的检查，子类的`.get()` 也需要同步修改。如果这样的子类很多，难免会有错漏。
 
-Let's redesign our classes to fix this problem and let the `View` class be
-extended (not modified) cleanly:
+我们可以重新设计一下 `View`  类，让他变得可扩展，而不需要修改原有的类方法。
 
-**Good**
+**改进1**
+
 ```python
 from dataclasses import dataclass
 
@@ -935,24 +880,18 @@ class TemplateView(View):
 
 
 ```
+注意我们还是需要重写`render_body()`，这样才能改变响应的内容。但这个方法的职责就是然让子类来重写来扩展功能的。
 
-Note that we did need to override the `render_body()` in order to change the
-source of the body, but this method has a single, well defined responsibility
-that **invites subtypes to override it**. It is designed to be extended by its
-subtypes.
+另一个方式就是利用继承和聚合的优点，使用[Mixins](https://docs.djangoproject.com/en/4.1/topics/class-based-views/mixins/)。
 
-Another good way to use the strengths of both object inheritance and object
-composition is to use [Mixins](https://docs.djangoproject.com/en/4.1/topics/class-based-views/mixins/).
+Mixins 类是基础类，他们就是给其它相关的类使用的。它们和目标类通过多继承的方式结合可以改变目标类的功能。
 
-Mixins are bare-bones classes that are meant to be used exclusively with other
-related classes. They are "mixed-in" with the target class using multiple
-inheritance, in order to change the target's behaviour.
+一些使用规则：
+ - Mixins 必须继承自 `object`
+ - Mixins 继承顺序在目标类之前，例如`class Foo(MixinA, MixinB, TargetClass): ...`
 
-A few rules:
- - Mixins should always inherit from `object`
- - Mixins always come before the target class, e.g. `class Foo(MixinA, MixinB, TargetClass): ...`
+**改进2**
 
-**Also good**
 ```python
 from dataclasses import dataclass, field
 from typing import Protocol
@@ -1023,36 +962,29 @@ class TemplateView(TemplateRenderMixin, ContentLengthMixin, View):
     template_file = "index.html"
 
 ```
+正如你看到的，通过把相关的功能封装到一个可重用的类里面，Mixins是对象的聚合更加容易。这个封装的类也符合单一职责原则。类的扩展就通过继承这些Mixins类来实现。
 
-As you can see, Mixins make object composition easier by packaging together
-related functionality into a highly reusable class with a single responsibility,
-allowing clean decoupling. Class extension is achieved by "mixing-in" the
-additional classes.
+Django 就用了很多Mixins 来聚合它的 view 类。
 
-The popular Django project makes heavy use of Mixins to compose its class-based
-views.
+FIXME: 等`typing.Protocol` 的使用方式明确了，需要在上面那行代码给 Mixins 加入类型检查。
 
-FIXME: re-enable typechecking for the line above once it's clear how to use
-`typing.Protocol` to make the type checker work with Mixins.
-
-### **Liskov Substitution Principle (LSP)**
-
-> “Functions that use pointers or references to base classes
-> must be able to use objects of derived classes without knowing it”,
+### **里氏替换原则**
+函数如果使用了某个基类指针或引用，也可以同样的使用基类的派生类，而不用关心这些派生的具体实现。
+> “函数如果使用了某个基类指针或引用，也可以同样的使用基类的派生类，而不用关心这些派生的具体实现。
 > Uncle Bob.
 
-This principle is named after Barbara Liskov, who collaborated with fellow
-computer scientist Jeannette Wing on the seminal paper
-*"A behavioral notion of subtyping" (1994). A core tenet of the paper is that
-"a subtype (must) preserve the behaviour of the supertype methods and also all
-invariant and history properties of its supertype".
 
-In essence, a function accepting a supertype should also accept all its subtypes
-with no modification.
+我们用 Barbara Liskov 来命名这条原则，他和计算机科学家 Jeannette Wing 发表了论文
+*"A behavioral notion of subtyping" (1994). 论文的一个核心是派生类方法必须保留它的父类的该方法相同的功能和行为。
 
-Can you spot the problem with the following code?
+如果某个函数的参数可以传一个父类对象，那么这个父类的所有派生类对象都可以传给这个函数，而且这个函数不需要修改。
 
-**Bad**
+*译者注：*如果对上面这段不是很理解的话只要记住一点。父类的所有方法子类必须要都实现，要么继承，要么重写。如果重写的话，它实现的功能必须和父类该方法的功能相似，参数尽量保持一致。
+
+来看看下面的代码有哪些问题。
+
+**不好的例子：**
+
 ```python
 from dataclasses import dataclass
 
@@ -1105,15 +1037,9 @@ def render(view: View, request) -> Response:
 
 ```
 
-The expectation is that `render()` function will be able to work with `View` and its
-subtype `TemplateView`, but the latter has broken compatibility by modifying
-the signature of the `.get()` method. The function will raise a `TypeError`
-exception when used with `TemplateView`.
+`render()` 方法应该可以和`View` 类以及它的子类`TemplateView`配合使用，但是`TemplateView`在继承的时候把`.get()`方法的签名（方法的输入输出）给改了。使用``render()` 的时候 TemplateView`会抛出一个错误。
 
-If we want the `render()` function to work with any subtype of `View`, we
-must pay attention not to break its public-facing protocol. But how do we know
-what constitutes it for a given class? Type hinters like *mypy* will raise
-an error when it detects mistakes like this:
+如果我们希望`render()` 可以被`View` 和它的所有派生类来使用，我们要注意不能破坏对外的接口。但是我们怎么能知道某个给定类的构成呢？输入*mypy*，当遇到类似的问题是它会抛出一个错误：
 
 ```
 error: Signature of "get" incompatible with supertype "View"
@@ -1123,23 +1049,18 @@ error: Signature of "get" incompatible with supertype "View"
 <string>:36: note:          def get(self, request: Any, template_file: str) -> Response
 ```
 
-### **Interface Segregation Principle (ISP)**
+### **接口隔离原则**
 
-> “Keep interfaces small
-> so that users don’t end up depending on things they don’t need.”,
+接口要简洁，这样用户就不需要依赖他们不需要的东西
+> “接口要简洁，这样用户就不需要依赖他们不需要的东西。”
 > Uncle Bob.
 
-Several well known object oriented programming languages, like Java and Go,
-have a concept called interfaces. An interface defines the public methods and
-properties of an object without implementing them. They are useful when we don't
-want to couple the signature of a function to a concrete object; we'd rather
-say "I don't care what object you give me, as long as it has certain methods
-and attributes I expect to make use of".
+一些比较著名的面向对象编程语言比如说 Java 和 Go，有一个接口（interface）概念。一个接口类定义了抽象方法和属性，这些方法不需要具体实现。当我们想定义一个函数的签名（定义函数的输入输出类型）但不想具体实现它，接口就会变得非常有用。我们可以说：“我们斌不关心你传给我的对象的细节，我只关心我会用到的类方法或属性。”
 
-Python does not have interfaces. We have Abstract Base Classes instead, which
-are a little different, but can serve the same purpose.
+Python 没有接口，但是它提供了抽象类，这和接口有一些不一样，但可以实现相同的功能。
 
-**Good**
+**好的例子**
+
 ```python
 
 from abc import ABCMeta, abstractmethod
@@ -1171,14 +1092,11 @@ def welcome_user(user_name: str, actor: Greeter):
 
 welcome_user("Barbara", FriendlyActor())
 ```
+现在想象下面一个场景：我们有一些PDF文档，我们想提供给我们网站的用户。我们想使用一个python web 框架来设计一个类管理这些文档。所以我们给文档设计了一个抽象基类，这个基类大而全，把一些可能用到的功能都写进去了。
 
-Now imagine the following scenario: we have a certain number of PDF documents
-that we author and want to serve to our web site visitors. We are using a
-Python web framework and we might be tempted to design a class to manage these
-documents, so we go ahead and design a comprehensive abstract base class for
-our document.
 
-**Error**
+**不好的例子**
+
 ```python
 import abc
 
@@ -1201,9 +1119,7 @@ class Persistable(metaclass=abc.ABCMeta):
         """Save the file to disk"""
 
 
-# We just want to serve the documents, so our concrete PDF document
-# implementation just needs to implement the `.load()` method and have
-# a public attribute named `data`.
+# 针对 PDF 文档 我们只需要实现`.load()` 方法，并给`data` 赋对应的值。
 
 class PDFDocument(Persistable):
     """A PDF document"""
@@ -1226,28 +1142,23 @@ def view(request):
 
 ```
 
-But we can't! If we don't implement the `.save()` method, an exception will be
-raised:
+但是我们不可以！如果我们没有实现 `.save()` 方法，会抛出一个异常：
 
 ```
 Can't instantiate abstract class PDFDocument with abstract method save.
 ```
 
-That's annoying. We don't really need to implement `.save()` here. We could
-implement a dummy method that does nothing or raises `NotImplementedError`,
-but that's useless code that we will need to maintain.
+这很烦人。我们不需要真的在这里实现`.save()`。我们可以给这个方法赋一个空的内容 或者写 `NotImplementedError`, 但是这些无用的代码我们需要避免。
 
-At the same time, if we remove `.save()` from the abstract class now we will
-need to add it back when we will later implement a way for users to submit
-their documents, bringing us back to the same situation as before.
+同时如果我们把`.save()`从抽象类里移除了，当用户提交他们的文档的时候，我们需要把它重新加进去，那我们就会遇到和前面一样的问题。
 
-The problem is that we have written an *interface* that has features we don't
-need right now as we are not using them.
+问题总结一下就是：是我们写了一个接口，这个接口里面有一些我们现在用不上的特性。
 
-The solution is to decompose the interface into smaller and composable interfaces
-that segregate each feature.
+解决方式是把这个接口拆成更小的接口，每个新的接口负责一部分内容。
 
-**Good**
+
+**改进**
+
 ```python
 import abc
 
@@ -1293,16 +1204,16 @@ def view(request):
 
 ```
 
-### **Dependency Inversion Principle (DIP)**
+### **依赖倒置原则**
 
-> “Depend upon abstractions, not concrete details”,
+> “依赖抽象，而不是具体的细节”,
 > Uncle Bob.
 
-Imagine we wanted to write a web view that returns an HTTP response that
-streams rows of a CSV file we create on the fly. We want to use the CSV writer
-that is provided by the standard library.
+想象我们想写一个web view 来返回HTTP响应。这个想要会流式的处理我们实时生成的 CSV 文件。我们想使用标准库提供的 CSV writer。
 
-**Bad**
+
+**不好的例子**
+
 ```python
 import csv
 from io import StringIO
@@ -1338,17 +1249,13 @@ def some_view(request):
 
 ```
 
-Our first implementation works around the CSV's writer interface by manipulating
-a `StringIO` object (which is file-like) and performing several low level
-operations in order to farm out the rows from the writer. It's a lot of work
-and not very elegant.
+我们的第一个实现使用了 CSV writer接口。通过操作`StringIO` 对象（类似一个文件）这些使用执行了一些底层操作以向writer中写入数据。这些操作比较繁杂而且不优雅。
 
-A better way is to leverage the fact that the writer just needs an object with
-a `.write()` method to do our bidding. Why not pass it a dummy object that
-immediately returns the newly assembled row, so that the `StreamingHttpResponse`
-class can immediate stream it back to the client?
+更好的方式是明白 writer 只需要一个包含`.write()` 方法的对象。为什么不给它一个假的对象，这个对象可以及时的返回新的获得行数据。这样 `StreamingHttpResponse` 类可以及时的将它返回给发出请求的用户。
 
-**Good**
+
+**改进**
+
 ```python
 import csv
 
@@ -1376,43 +1283,28 @@ def some_streaming_csv_view(request):
 
 ```
 
-Much better, and it works like a charm! The reason it's superior to the previous
-implementation should be obvious: less code (and more performant) to achieve
-the same result. We decided to leverage the fact that the writer class depends
-on the `.write()` abstraction of the object it receives, without caring about
-the low level, concrete details of what the method actually does.
-
-This example was taken from
+这样实现就比前面的好很多，更加优雅。它的优点很明显：用更少的代码实现了相同的功能。我们利用了 writer 类只关心参数类里`.write()`这个抽象的方法，而不关心它内部的实现细节。
+这个例子来源于
 [a submission made to the Django documentation](https://code.djangoproject.com/ticket/21179)
-by this author.
+.
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
-## **Don't repeat yourself (DRY)**
+## **项目里不要有重复代码**
 
-Try to observe the [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) principle.
+可以去[维基百科](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) 看一下这个原则的介绍 
+项目里尽量不要有重复代码。重复代码意味着：你修改某一处代码逻辑时，那些重复的地方也需要同步的进行修改。如果重复代码过多，修改的工作量会很大而且极易产生错漏。
 
-Do your absolute best to avoid duplicate code. Duplicate code is bad because
-it means that there's more than one place to alter something if you need to
-change some logic.
+想象一下，如果您经营一家餐馆，并盘点您的库存：
+西红柿、洋葱、大蒜、香料等。如果您有多个清单
+那么当你用了一个西红柿做了西红柿炒蛋。随后你必须更新所有的清单上的西红柿和鸡蛋的数据，。如果您只有一个列表，那么只需要更新一次。
 
-Imagine if you run a restaurant and you keep track of your inventory: all your
-tomatoes, onions, garlic, spices, etc. If you have multiple lists that
-you keep this on, then all have to be updated when you serve a dish with
-tomatoes in them. If you only have one list, there's only one place to update!
+写重复代码的原因主要是想要实现的功能仅有一两处不同，其它地方都是相同的。就是这些很少的不同，让你需要用多个具有重复代码的函数去实现，尽管这些函数的大部分代码都是共用的。想要去除重复代码，需要把共同的部分给抽象出来，然后用一个函数/模块/类来处理那些不同的地方。
 
-Often you have duplicate code because you have two or more slightly
-different things, that share a lot in common, but their differences force you
-to have two or more separate functions that do much of the same things. Removing
-duplicate code means creating an abstraction that can handle this set of different
-things with just one function/module/class.
+具有好的抽象思维对一个程序员来说是至关重要的。不好的抽象带来的危害比重复代码更严重。如果你可以做一个好的抽象，一定要去做。不要写重复代码，否则你会发现想改一处逻辑的时候你的代码需要改动的地方会很多。
+译者注：abstraction 这个含义比较难解释，百度了一下，含义如下：从众多的具体事物中，抽取共同的、本质的属性，舍弃个别的、非本质的属性，从而形成概念。
 
-Getting the abstraction right is critical. Bad abstractions can be
-worse than duplicate code, so be careful! Having said this, if you can make
-a good abstraction, do it! Don't repeat yourself, otherwise you'll find yourself
-updating multiple places any time you want to change one thing.
-
-**Bad:**
+**不好的例子:**
 
 ```python
 from typing import List, Dict
@@ -1480,7 +1372,7 @@ company_managers = [
 company_managers_list = get_manager_list(managers=company_managers)
 ```
 
-**Good:**
+**改进**
 
 ```python
 from typing import List, Dict
@@ -1528,13 +1420,15 @@ company_managers_list = get_employee_list(employees=company_managers)
 
 
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ 回到顶部](#目录)**
 
 ## **Translations**
 
 This document is also available in other languages:
 
+- :en: **English:** [https://github.com/zedr/clean-code-pythonn](https://github.com/zedr/clean-code-python)
 - :pt: :br: **Portugese** [fredsonchaves07/clean-code-python](https://github.com/fredsonchaves07/clean-code-python)
 - :iran: **Persian:** [https://github.com/SepehrRasouli/clean-code-python](https://github.com/SepehrRasouli/clean-code-python)
+
 
 **[⬆ back to top](#table-of-contents)**
