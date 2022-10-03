@@ -4,10 +4,10 @@
 [![](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/download/releases/3.8.3/)
 
 ## 目录
-  1. [介绍](#introduction)
-  2. [变量](#variables)
-  3. [函数](#functions)
-  5. [类](#classes)
+  1. [介绍](#介绍)
+  2. [变量](#变量)
+  3. [函数](#函数)
+  5. [类](#类)
      1. [S: 单一功能原则（SRP：Single responsibility principle）](#s单一功能原则)
      2. [O: 开闭原则（OCP：Open/Closed Principle）](#开闭原则)
      3. [L: 里氏替换原则 （LSP：Liskov Substitution Principle）](#里氏替换原则)
@@ -1422,9 +1422,9 @@ company_managers_list = get_employee_list(employees=company_managers)
 
 **[⬆ 回到顶部](#目录)**
 
-## **Translations**
+## **其它语言版本**
 
-This document is also available in other languages:
+其它语言版本:
 
 - :en: **English:** [https://github.com/zedr/clean-code-pythonn](https://github.com/zedr/clean-code-python)
 - :pt: :br: **Portugese** [fredsonchaves07/clean-code-python](https://github.com/fredsonchaves07/clean-code-python)
