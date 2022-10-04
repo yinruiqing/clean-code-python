@@ -20,9 +20,9 @@
 软件工程需要遵守的一些原则。参考了 Robert C. Martin's 的
 [*代码整洁之道*](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882)，原书编程语言使用的是用 javascript，这里将它改写提炼成了 python 版本。核心思想是一样的。这并不是一个介绍 python 代码风格的手册。它的核心目的是帮助大家用 python 写出：可读性高，易用，易于重构的项目。
 
-这里介绍的原则并不需要严格每一条都严格执行，也许有些人只会赞同里面的一部分。但是这些原则都是*代码整洁之道*作者多年经验的总结。
+这里介绍的原则并不需要每一条都严格执行，也许有些人只会赞同里面的一部分。但是这些原则都是*代码整洁之道*作者多年经验的总结。
 
-请注意里面的示例代码只能在 Python3.7 及以上的版本运行。
+请注意这里的示例代码只能在 Python3.7 及以上的版本运行。
 
 ## **变量**
 
@@ -49,8 +49,7 @@ current_date: str = datetime.date.today().strftime("%y-%m-%d")
 
 **[⬆ 回到顶部](#目录)**
 
-同一个项目中，表示同一个东西的时候请使用相同的变量名。
-### Use the same vocabulary for the same type of variable
+### 同一个项目中，表示同一个东西的时候请使用相同的变量名
 
 **不好的例子:**
 这里我们用了三个不同的变量名（user，client，customer）表示了同一个东西：
@@ -137,8 +136,7 @@ if matches:
 
 **改进1**:
 
-这个比上面那个例子好一些，但是仍然强依赖正则表达式
-It's better, but we are still heavily dependent on regex.
+这个比上面那个例子好一些，但是仍然强依赖正则表达式。
 
 ```python
 import re
@@ -170,10 +168,8 @@ if matches:
 ```
 **[⬆ 回到顶部](#目录)**
 
-### Avoid Mental Mapping
+### 起名不要想当然
 不要让阅读你代码的人猜变量名表示的含义，直接显式的在变量名中表示它想表达的东西。
-Don’t force the reader of your code to translate what the variable means.
-Explicit is better than implicit.
 
 **不好的例子:**
 
